@@ -22,7 +22,8 @@ router.post('/',(req, res)=> {
             res.json(data);
         })
         .catch(err => {
-            res.json(err.message);
+            for (field in err.erros)
+                res.json(err.erros[field].message);
         })
     } else if(role==='patient') {
         user.patientInfo.name = name;

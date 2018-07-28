@@ -6,24 +6,30 @@ const db = require('./db');
 
 router.use(bodyParser.json());
 router.post('/create-appointment',(req,res) => {
-    const {id,title,description,price,days,prefered_location} = req.body;
+    const {id,title,description,category,days,prefered_location} = req.body;
     db.findById(id)
         .then(user =>{
-            // if(err){
-            //     return;
-            // }
+            if(user.role==='dentist'){
+                res.status(404).json('Not found');
+                return;
+            }
             const appointments = {};
             appointments.title= title;
             appointments.description = description;
-            appointments.price= price;
+            appointments.category = category;
             appointments.days = days;
-            appointments.prefered_location= prefered_location
+            appointments.prefered_location= prefered_location;
             user.patientInfo.appointments.push(appointments);
-            user.save();
-             res.json(user);
+            user.save().
+                then(updatedUser => {
+                    res.json(updatedUser);
+                })
+                .catch(err => {
+                    res.json(err.message);
+                })
         })
         .catch(err => {
-            res.status(404).json('Not found');
+            res.status(404).json(err.message);
         });
 });
 
