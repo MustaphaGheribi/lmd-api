@@ -1,13 +1,20 @@
 const express = require('express');
 const app = express();
-const userSignup = require('./routes/user-signup');
-const patientAppointment = require('./routes/patient-appointment');
+const mongoose = require('mongoose');
+const dentist = require('./routes/dentist');
+const patient = require('./routes/patient');
+// const patientAppointment = require('./routes/patient-appointment');
 const bodyParser = require('body-parser');
-
 app.use(bodyParser.json());
 
-app.use('/api/dentist/signup', userSignup);
-app.use('/api/appointment', patientAppointment);
+mongoose.connect('mongodb://mustapha:stoufa123@ds161411.mlab.com:61411/last-minute-dentists')
+.then(()=> { console.log('connected to mongoDB..')})
+.catch(err => console.err('Error connecting to MongoDB..'));
+
+
+app.use('/api/dentist', dentist);
+// app.use('/api/appointment', patientAppointment);
+app.use('/api/patient',patient);
 
 
 app.listen(process.env.PORT || 3000, (err) => {
