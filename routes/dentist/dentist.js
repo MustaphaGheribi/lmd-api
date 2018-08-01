@@ -1,4 +1,4 @@
-const auth = require('../../middleware/dentist/auth');
+const auth = require('../../middleware/auth/dentist/auth');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const express= require('express');

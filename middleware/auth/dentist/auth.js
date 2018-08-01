@@ -5,7 +5,7 @@ module.exports = function auth(req,res,next) {
     if(!token) return res.status(401).json('Access denied.No token provided.');
     try {
         const payload = jwt.verify(token, config.get('jwtPrivateKey'));
-        if(payload.isDentist){
+        if(payload.isDentist) {
             req.user=payload;
             next();
         } else {
