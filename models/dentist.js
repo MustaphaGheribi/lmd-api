@@ -33,7 +33,7 @@ const dentistSchema = new mongoose.Schema({
 });
 
 dentistSchema.methods.generateAuthToken = function() {
-    const token = jwt.sign({id:this.id, isDentist: true}, config.get('jwtPrivateKey'));
+    const token = jwt.sign({id: this.id, isDentist: true, isPatient: false}, config.get('jwtPrivateKey'));
     return token;
 
 };

@@ -5,8 +5,12 @@ module.exports = function auth(req,res,next) {
     if(!token) return res.status(401).json('Access denied.No token provided.');
     try {
         const payload = jwt.verify(token, config.get('jwtPrivateKey'));
-        req.user=payload;
-        next();
+        if(payload.isDentist){
+            req.user=payload;
+            next();
+        } else {
+            res.status(403).json('Access denied.');
+        }
     }catch(ex) {
         res.status(400).json('Invalid token.');
     }
