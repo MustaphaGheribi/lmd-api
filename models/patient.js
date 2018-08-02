@@ -1,5 +1,6 @@
+const jwt = require('jsonwebtoken');
+const config = require('config');
 const Joi = require('joi');
-const PasswordComplexity = require('joi-password-complexity');
 const mongoose = require('mongoose');
 
 const patientSchema = new mongoose.Schema({
@@ -53,7 +54,14 @@ const patientSchema = new mongoose.Schema({
     }]
    
 });
+patientSchema.methods.generateAuthToken = function() {
+    const token = jwt.sign({id: this.id, isDentist: false, isPatient: true}, config.get('jwtPrivateKey'));
+    return token;
+
+};
 const Patient = mongoose.model('Patient', patientSchema); 
+
+
 
 function validatePatient(patient) {
     const schema = {
