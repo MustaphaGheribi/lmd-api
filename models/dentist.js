@@ -29,13 +29,15 @@ const dentistSchema = new mongoose.Schema({
     zip_code: String,
     address: String,
     phone_number: String,
+    isAdmin: Boolean,
+    isPatient: Boolean,
+    isDentist: Boolean
 
 });
 
 dentistSchema.methods.generateAuthToken = function() {
     const token = jwt.sign({id: this.id, isDentist: true, isPatient: false}, config.get('jwtPrivateKey'));
     return token;
-
 };
 const Dentist = mongoose.model('Dentist', dentistSchema); 
 

@@ -23,7 +23,10 @@ const adminSchema = new mongoose.Schema({
         required: true,
         minlength: 5,
         maxlength: 1024
-    }
+    },
+    isAdmin: Boolean,
+    isPatient: Boolean,
+    isDentist: Boolean
 });
 adminSchema.methods.generateAuthToken = function() {
     const token = jwt.sign({
@@ -34,6 +37,4 @@ adminSchema.methods.generateAuthToken = function() {
 
 };
 const Admin = mongoose.model('Admin', adminSchema); 
-
-
 module.exports.Admin = Admin;

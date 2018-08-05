@@ -9,12 +9,16 @@ router.post('/',async (req,res)=>{
     const { email,password } = req.body;
     const { error } = validate(req.body);
     if(error) return res.status(400).json(error.details[0].message);
-    const user = await Patient.findOne({email});
-    if(!user) return res.status(400).json('Invalid email or password.');
-    const valid = await bcrypt.compare(password, user.password);
-    if(!valid) return res.status(400).json('Invalid email or password.');
-    const token = user.generateAuthToken();
-    res.json(token);
+    try {  
+        const user = await Patient.findOne({email});
+        if(!user) return res.status(400).json('Invalid email or password.');
+        const valid = await bcrypt.compare(password, user.password);
+        if(!valid) return res.status(400).json('Invalid email or password.');
+        const token = user.generateAuthToken();
+        res.json(token);
+    } catch (error) {
+        res.status(500).json('An error occured.')
+    }
    
 });
 
