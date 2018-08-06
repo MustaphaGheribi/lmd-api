@@ -1,6 +1,6 @@
 const express= require('express');
 const router = express.Router();
-const {Appointment, Patient,validateAppointment} = require('../../models/patient');
+const {Appointment, Patient,validateAppointment, Proposal} = require('../../models/patient');
 const auth = require('../../middleware/auth/patient/auth');
 const adminAuth = require('../../middleware/auth/admin/auth');
 
@@ -76,4 +76,21 @@ router.put('/update/:id',auth, async(req,res)=>{
 
 });
 
+//BOOK appointment.
+//Proposal ID
+router.post('/book/:id',auth, async(req,res)=>{
+    try {
+        const proposal = await Proposal.findById(req.params.id);
+        if(!proposal) return res.status(404).json('No proposal with the given ID.');
+        //PROCESS PAYMENTS HERE. 
+        const appointment = await Appointment.findById(proposal._appointment._id);
+        if(appointment.booked) return res.status(400).json('Appointment already booked');
+        appointment.booked = true;
+        appointment.bookedBy = req.user.id;
+        const bookedAppointment = await appointment.save();
+        res.json({success: true, message: 'booked',bookedAppointment});
+    } catch (error) {
+        res.status(500).json('An error occured.'); 
+    }
+});
 module.exports = router;

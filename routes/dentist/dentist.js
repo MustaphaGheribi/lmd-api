@@ -1,12 +1,13 @@
-const auth = require('../../middleware/auth/admin/auth');
+const auth = require('../../middleware/auth/dentist/auth');
+const Adminauth = require('../../middleware/auth/admin/auth');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const express= require('express');
 const router = express.Router();
 const {Dentist, validateDentist} = require('../../models/dentist');
-
+const {Appointment, Proposal, validateProposal} = require('../../models/patient');
 // GET ALL DENTISTS FROM DATABASE
-router.get('/',auth,async (req,res)=> {       
+router.get('/',Adminauth,async (req,res)=> {
     const dentists = await Dentist.find();
     res.json(dentists);
    
@@ -42,8 +43,21 @@ router.post('/signup', async(req, res) => {
     }
 });
 
-router.post('/book/:id', async(req,res)=>{
-
+router.post('/propose/:id', auth,async(req,res)=>{
+    const {price,days,location} = req.body;
+    const appointment = await Appointment.findById(req.params.id);
+    if(!appointment) return res.status(404).json('No appointment with the given ID.');
+    if(appointment.booked) return res.status(400).json('Appointment already booked.');
+    const { error } = validateProposal(req.body); 
+    if (error) return res.status(400).json(error.details[0].message);
+    const proposal = new Proposal({
+        _appointment: req.params.id,
+        price,
+        days,
+        location,
+        madeBy: req.user.id,
+    });
+    const result = await proposal.save();
+    res.json(result);
 });
-
 module.exports = router;

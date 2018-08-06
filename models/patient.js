@@ -39,6 +39,7 @@ const patientSchema = new mongoose.Schema({
     isDentist: Boolean
    
 });
+
 const appointmentSchema = new mongoose.Schema( {
     _patient: {
          type: mongoose.Schema.Types.ObjectId,
@@ -66,10 +67,35 @@ const appointmentSchema = new mongoose.Schema( {
      },
      prefered_location: String,
      date : {type: Date, default: Date.now},
-
+    booked: {
+        type: Boolean,
+        default: false
+    },
+    bookedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Dentist'
+    },
+    bookedAt: {type: Date, default: Date.now},
+    proposals: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: 'Proposal'
+      }
+    ]
    
  });
  
+const proposalSchema = mongoose.Schema({
+    _appointment: {type: mongoose.Schema.Types.ObjectId, ref:'Appointment'},
+    day: Date,
+    price: Number,
+    location: String,
+    madeBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Dentist'
+    },
+    madeAt: {type: Date, default: Date.now}
+});
 patientSchema.methods.generateAuthToken = function() {
     const token = jwt.sign({id: this.id, isDentist: false, isPatient: true}, config.get('jwtPrivateKey'));
     return token;
@@ -77,7 +103,7 @@ patientSchema.methods.generateAuthToken = function() {
 };
 const Patient = mongoose.model('Patient', patientSchema); 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
-
+const Proposal = mongoose.model('Proposal', proposalSchema);
 
 
 function validatePatient(patient) {
@@ -104,7 +130,19 @@ function validateAppointment(appointment) {
     return  Joi.validate(appointment, schema); 
     
 }
+
+function validateProposal(proposal) {
+    const schema = {
+        day: Joi.date().required(),
+        price: Joi.number().required(),
+        location: Joi.string().min(5).max(255).required()
+    }
+
+    return Joi.validate(proposal, schema);
+}
 module.exports.Patient = Patient;
 module.exports.validatePatient = validatePatient;
 module.exports.Appointment = Appointment;
 module.exports.validateAppointment = validateAppointment;
+module.exports.Proposal= Proposal;
+module.exports.validateProposal = validateProposal;

@@ -17,13 +17,10 @@ router.post('/',async (req,res)=>{
         const token = user.generateAuthToken();
         res.json(token);
     } catch (error) {
-        res.status(500).json('An error occured.')
+        res.status(500).json(error.message)
     }
    
 });
-
-
-
 
 function validate(dentist) {
     const schema = {

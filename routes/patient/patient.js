@@ -45,7 +45,7 @@ router.post('/signup', async(req, res) => {
         res.header('x-auth-token', token).json(newUser);
         signUpMailer(req.body);
     }catch(err){
-        res.status(500).json('An error occured.');
+        res.status(500).json(err.message);
     }
 });
 
@@ -56,10 +56,6 @@ router.get('/me',patientAuth, async(req,res)=>{
     } catch (error) {
         res.status(500).json('An error occured.'); 
     }
-});
-
-router.put('/update-pw',patientAuth, async(req,res) =>{
-
 });
 
 module.exports = router;
