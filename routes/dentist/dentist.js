@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 const express= require('express');
 const router = express.Router();
 const {Dentist, validateDentist} = require('../../models/dentist');
-const {Appointment, Proposal, validateProposal} = require('../../models/patient');
+const {Appointment} = require('../../models/appointment');
+const {Proposal, validateProposal} = require('../../models/proposal');
 // GET ALL DENTISTS FROM DATABASE
 router.get('/',Adminauth,async (req,res)=> {
     const dentists = await Dentist.find();
@@ -44,21 +45,28 @@ router.post('/signup', async(req, res) => {
 });
 
 router.post('/propose/:id', auth,async(req,res)=>{
-    const {price,days,location} = req.body;
-    const appointment = await Appointment.findById(req.params.id);
-    if(!appointment) return res.status(404).json('No appointment with the given ID.');
-    if(appointment.booked) return res.status(400).json('Appointment already booked.');
-    const { error } = validateProposal(req.body); 
-    if (error) return res.status(400).json(error.details[0].message);
-    const proposal = new Proposal({
-        _appointment: req.params.id,
-        price,
-        days,
-        location,
-        madeBy: req.user.id,
-    });
-    const result = await proposal.save();
-    res.json(result);
+    try {
+        const {price,days,location} = req.body;
+        const appointment = await Appointment.findById(req.params.id);
+        if(!appointment) return res.status(404).json('No appointment with the given ID.');
+        if(appointment.booked) return res.status(400).json('Appointment already booked.');
+        const check = await Proposal.find({_appointment: req.params.id, madeBy: req.user.id });
+        if(check) return res.status(400).json('You already made an offer to this appointment')
+        const { error } = validateProposal(req.body); 
+        if (error) return res.status(400).json(error.details[0].message);
+        const proposal = new Proposal({
+            _appointment: req.params.id,
+            price,
+            days,
+            location,
+            madeBy: req.user.id,
+        });
+        const result = await proposal.save();
+        res.json(result);
+        
+    } catch (error) {
+        res.json(error.message);
+    }
 });
 
 router.get('/my-proposals',auth, async(req,res)=>{
