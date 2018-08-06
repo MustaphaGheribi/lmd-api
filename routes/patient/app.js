@@ -3,6 +3,7 @@ const router = express.Router();
 const {Appointment, Patient,validateAppointment, Proposal} = require('../../models/patient');
 const auth = require('../../middleware/auth/patient/auth');
 const adminAuth = require('../../middleware/auth/admin/auth');
+const dentistAuth = require('../../middleware/auth/dentist/auth');
 
 router.get('/me',auth, async(req,res)=>{
     try {
@@ -15,9 +16,9 @@ router.get('/me',auth, async(req,res)=>{
     }
 });
 
-router.get('/',adminAuth, async(req,res)=>{
+router.get('/',dentistAuth, async(req,res)=>{
     try {
-        const appointments = await Appointment.find();
+        const appointments = await Appointment.find({booked: false});
         res.json(appointments);        
     } catch (error) {
         res.status(500).json('An error occured.');
@@ -86,7 +87,7 @@ router.post('/book/:id',auth, async(req,res)=>{
         const appointment = await Appointment.findById(proposal._appointment._id);
         if(appointment.booked) return res.status(400).json('Appointment already booked');
         appointment.booked = true;
-        appointment.bookedBy = req.user.id;
+        appointment.bookedBy = proposal.madeBy;
         const bookedAppointment = await appointment.save();
         res.json({success: true, message: 'booked',bookedAppointment});
     } catch (error) {

@@ -60,4 +60,14 @@ router.post('/propose/:id', auth,async(req,res)=>{
     const result = await proposal.save();
     res.json(result);
 });
+
+router.get('/my-proposals',auth, async(req,res)=>{
+   const proposals = await Proposal.find({madeBy: req.user.id});
+   res.json(proposals); 
+});
+
+router.get('/my-appointments',auth, async(req,res) =>{
+    const appointment = await Appointment.find({bookedBy: req.user.id}).select('-booked -proposals');
+    res.json(appointment);
+});
 module.exports = router;
